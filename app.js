@@ -89,6 +89,18 @@ export const students = [
 ];
 
 /**
+ * Sanitizes input strings against XSS attacks.
+ * Pure arrow function adhering to project standards.
+ */
+export const escapeHtml = ({ text = '' } = {}) =>
+  String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+/**
  * Calculates average score across subjects using object destructuring and reduce.
  */
 export const calculateAverageScore = ({ math, science, history }) => {
@@ -105,7 +117,7 @@ export const calculateAverageScore = ({ math, science, history }) => {
  */
 export const renderSubjectBadges = ({ subjects = [] }) =>
   subjects
-    .map((subject) => `<span class="badge badge-subject">${subject}</span>`)
+    .map((subject) => `<span class="badge badge-subject">${escapeHtml({ text: subject })}</span>`)
     .join('');
 
 /**
@@ -115,6 +127,7 @@ export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) =>
   const { math, science, history } = scores;
   const [average] = [calculateAverageScore({ math, science, history })];
   const [isHonor] = [average > 85];
+  const [sanitizedName] = [escapeHtml({ text: name })];
   const [initials] = [
     name
       .split(' ')
@@ -128,7 +141,7 @@ export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) =>
       <header class="card-header">
         <div class="avatar">${initials}</div>
         <div class="header-info">
-          <h3 class="student-name">${name}</h3>
+          <h3 class="student-name">${sanitizedName}</h3>
           <div style="display: flex; gap: 0.4rem; align-items: center; margin-top: 0.25rem;">
             <span class="badge badge-grade">Grade ${gradeLevel}</span>
             ${isHonor ? '<span class="badge badge-honor">★ Honor Roll</span>' : ''}
@@ -171,6 +184,7 @@ export const renderHonorRollRow = ({ student, rank }) => {
   const { id, name, gradeLevel, scores } = student;
   const { math, science, history } = scores;
   const [average] = [calculateAverageScore({ math, science, history })];
+  const [sanitizedName] = [escapeHtml({ text: name })];
   const [initials] = [
     name
       .split(' ')
@@ -184,7 +198,7 @@ export const renderHonorRollRow = ({ student, rank }) => {
       <td>
         <div class="table-student-name">
           <span class="avatar table-avatar">${initials}</span>
-          <span class="student-name-text">${name}</span>
+          <span class="student-name-text">${sanitizedName}</span>
         </div>
       </td>
       <td><span class="badge badge-grade">Grade ${gradeLevel}</span></td>
