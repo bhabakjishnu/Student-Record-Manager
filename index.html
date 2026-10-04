@@ -34,10 +34,40 @@
 
     <!-- Main Content -->
     <main id="mainContent">
+      <!-- Subject Averages & Metrics -->
+      <section class="metrics-grid" id="metricsGrid" aria-label="Class performance overview">
+        <div class="metric-card" id="mathMetric">
+          <span class="metric-label">Math Class Average</span>
+          <span class="metric-value" id="mathAvgValue">--</span>
+          <span class="metric-subtext">Across all enrolled students</span>
+        </div>
+        <div class="metric-card" id="scienceMetric">
+          <span class="metric-label">Science Class Average</span>
+          <span class="metric-value" id="scienceAvgValue">--</span>
+          <span class="metric-subtext">Across all enrolled students</span>
+        </div>
+        <div class="metric-card" id="historyMetric">
+          <span class="metric-label">History Class Average</span>
+          <span class="metric-value" id="historyAvgValue">--</span>
+          <span class="metric-subtext">Across all enrolled students</span>
+        </div>
+        <div class="metric-card" id="honorMetric">
+          <span class="metric-label">Honor Roll Qualifiers</span>
+          <span class="metric-value" id="honorCountValue">--</span>
+          <span class="metric-subtext">Students with average &gt; 85</span>
+        </div>
+      </section>
+
       <div class="overview-bar">
-        <h2 class="overview-title">Enrolled Students</h2>
-        <div class="student-count" id="studentCounter">
-          Displaying <strong>10</strong> records
+        <h2 class="overview-title">Student Directory</h2>
+        <div class="controls-group">
+          <div class="filter-btn-group" role="group" aria-label="Student directory filter">
+            <button type="button" class="filter-btn active" id="filterAllBtn" data-filter="all">All (10)</button>
+            <button type="button" class="filter-btn" id="filterHonorBtn" data-filter="honor">Honor Roll (7)</button>
+          </div>
+          <div class="student-count" id="studentCounter">
+            Displaying <strong>10</strong> records
+          </div>
         </div>
       </div>
 
