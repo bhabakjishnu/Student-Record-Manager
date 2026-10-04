@@ -1,10 +1,16 @@
 /**
- * Student Record Manager - Data Model & Functional Core
+ * Student Record Manager - Application Controller & View Renderer
  * Strictly adheres to functional programming guidelines:
  * - Array and object destructuring for variable assignments and function parameters
- * - No for, for...of, or forEach loops (exclusive usage of map, filter, reduce)
- * - Pure modular functions using ES6 arrow syntax
+ * - Exclusively relies on .map(), .filter(), and .reduce() (no for, for...of, or forEach)
+ * - Pure modular functions utilizing ES6 arrow syntax
  */
+
+import {
+  getHonorRoll,
+  formatStudentCards,
+  getClassSubjectAverages
+} from './dataProcessor.js';
 
 /**
  * 10 mock student records dataset
@@ -108,6 +114,7 @@ export const renderSubjectBadges = ({ subjects = [] }) =>
 export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) => {
   const { math, science, history } = scores;
   const [average] = [calculateAverageScore({ math, science, history })];
+  const [isHonor] = [average > 85];
   const [initials] = [
     name
       .split(' ')
@@ -122,7 +129,10 @@ export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) =>
         <div class="avatar">${initials}</div>
         <div class="header-info">
           <h3 class="student-name">${name}</h3>
-          <span class="badge badge-grade">Grade ${gradeLevel}</span>
+          <div style="display: flex; gap: 0.4rem; align-items: center; margin-top: 0.25rem;">
+            <span class="badge badge-grade">Grade ${gradeLevel}</span>
+            ${isHonor ? '<span class="badge badge-honor">★ Honor Roll</span>' : ''}
+          </div>
         </div>
         <div class="score-summary">
           <span class="avg-label">Avg</span>
@@ -155,7 +165,7 @@ export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) =>
 };
 
 /**
- * Mounts student cards to the designated DOM container.
+ * Renders the list of student cards to the container.
  */
 export const mountStudents = ({ studentList = students, containerId = 'studentGrid' } = {}) => {
   const [container] = [document.getElementById(containerId)];
@@ -168,13 +178,75 @@ export const mountStudents = ({ studentList = students, containerId = 'studentGr
   ];
 
   container.innerHTML = cardsHtml;
+
+  const [counterElem] = [document.getElementById('studentCounter')];
+  if (counterElem) {
+    counterElem.innerHTML = `Displaying <strong>${studentList.length}</strong> records`;
+  }
 };
 
-// Automatic mount upon DOM loading in browser context
+/**
+ * Populates class metrics from dataProcessor output.
+ */
+export const mountMetrics = ({ studentList = students } = {}) => {
+  const { math, science, history } = getClassSubjectAverages(studentList);
+  const [honorRollList] = [getHonorRoll(studentList)];
+
+  const [mathElem] = [document.getElementById('mathAvgValue')];
+  const [sciElem] = [document.getElementById('scienceAvgValue')];
+  const [histElem] = [document.getElementById('historyAvgValue')];
+  const [honorElem] = [document.getElementById('honorCountValue')];
+
+  if (mathElem) mathElem.textContent = `${math}%`;
+  if (sciElem) sciElem.textContent = `${science}%`;
+  if (histElem) histElem.textContent = `${history}%`;
+  if (honorElem) honorElem.textContent = `${honorRollList.length} / ${studentList.length}`;
+};
+
+/**
+ * Sets up filter interaction using functional mappings.
+ */
+export const setupFilters = ({ studentList = students } = {}) => {
+  const [filterAllBtn] = [document.getElementById('filterAllBtn')];
+  const [filterHonorBtn] = [document.getElementById('filterHonorBtn')];
+
+  const handleFilterClick = ({ activeBtn, inactiveBtn, filterType }) => {
+    activeBtn.classList.add('active');
+    inactiveBtn.classList.remove('active');
+
+    const [filteredList] = [
+      filterType === 'honor'
+        ? getHonorRoll(studentList)
+        : studentList
+    ];
+
+    mountStudents({ studentList: filteredList, containerId: 'studentGrid' });
+  };
+
+  if (filterAllBtn && filterHonorBtn) {
+    filterAllBtn.addEventListener('click', () => {
+      handleFilterClick({ activeBtn: filterAllBtn, inactiveBtn: filterHonorBtn, filterType: 'all' });
+    });
+
+    filterHonorBtn.addEventListener('click', () => {
+      handleFilterClick({ activeBtn: filterHonorBtn, inactiveBtn: filterAllBtn, filterType: 'honor' });
+    });
+  }
+};
+
+// Initialize render if running in browser DOM context
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     mountStudents({ studentList: students, containerId: 'studentGrid' });
+    mountMetrics({ studentList: students });
+    setupFilters({ studentList: students });
   });
 }
+
+export {
+  getHonorRoll,
+  formatStudentCards,
+  getClassSubjectAverages
+};
 
 export default students;
