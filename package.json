@@ -4,7 +4,7 @@
   "description": "Student Record Manager - Academic records and performance dashboard",
   "type": "module",
   "scripts": {
-    "start": "node -e \"import('./app.js').then(({ students }) => console.log('Loaded ' + students.length + ' students'))\""
+    "start": "node -e \"import('./js/app.js').then(({ students }) => console.log('Loaded ' + students.length + ' students'))\""
   },
   "keywords": [
     "student-records",
@@ -12,5 +12,5 @@
     "functional-js"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }

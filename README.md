@@ -18,7 +18,7 @@ An academic performance directory and record management dashboard built with mod
 
 ## 🖥️ Desktop Preview
 
-![Student Record Manager Dashboard](assets/desktop-preview.png)
+![Desktop Preview](assets/desktop-preview.png)
 
 ---
 
@@ -29,16 +29,16 @@ The application adopts a modular, unidirectional functional architecture. Raw st
 ```mermaid
 flowchart TD
     subgraph Data Layer
-        A[Mock Students Dataset<br/><code>students</code> Array in app.js]
+        A["Mock Students Dataset<br/><code>students</code> Array in js/app.js"]
     end
 
-    subgraph Functional Core [dataProcessor.js - Pure Transforms]
+    subgraph Functional Core [js/dataProcessor.js - Pure Transforms]
         B["getHonorRoll()<br/>Filter average > 85 using .reduce()"]
         C["formatStudentCards()<br/>Project to {firstName, gradeLevel, isHonorRoll}"]
         D["getClassSubjectAverages()<br/>Single-pass .reduce() multi-accumulator"]
     end
 
-    subgraph Presentation Controller [app.js]
+    subgraph Presentation Controller [js/app.js]
         E[renderClassSubjectAverages]
         F[renderHonorRoll & renderHonorRollRow]
         G[mountStudents & setupFilters]
@@ -48,6 +48,10 @@ flowchart TD
         H["Subject Average Cards<br/>#metricsGrid"]
         I["Honor Roll Table<br/>#honorRollTable"]
         J["Student Directory Grid<br/>#studentGrid"]
+    end
+
+    subgraph Styling [css/style.css]
+        K["Dark Mode Glassmorphism & Responsive Grid"]
     end
 
     A --> B
@@ -61,11 +65,14 @@ flowchart TD
     E --> H
     F --> I
     G --> J
+    K -.-> H
+    K -.-> I
+    K -.-> J
 ```
 
 ---
 
-## ⚡ Functional JavaScript Deep Dive
+## ⚡ Functional JavaScript Implementation
 
 This project strictly adheres to **Declarative & Functional JavaScript Standards**:
 1. **Never use `for`, `for...of`, or `forEach` loops**.
@@ -73,14 +80,14 @@ This project strictly adheres to **Declarative & Functional JavaScript Standards
 3. **Always use array and object destructuring for variable assignments and function parameters**.
 4. **Write pure, modular functions using ES6 arrow syntax**.
 
-Below is the concrete breakdown of how each functional paradigm is implemented:
+Below is the concrete breakdown of how each functional paradigm is implemented across [`js/dataProcessor.js`](js/dataProcessor.js) and [`js/app.js`](js/app.js):
 
 ### 1. `.map()` — Transforming and Projecting Data
 
 `.map()` is employed whenever transforming an array into a new shape or generating markup strings:
 
-- **Record Projection ([`formatStudentCards`](dataProcessor.js))**:
-  Transforms raw student objects into lightweight cards with only first name, grade, and honor roll status:
+- **Record Projection ([`formatStudentCards` in js/dataProcessor.js](js/dataProcessor.js))**:
+  Transforms raw student objects into lightweight cards containing only first name, grade, and honor roll status:
   ```javascript
   export const formatStudentCards = (studentList = []) => {
     const [students] = [Array.isArray(studentList) ? studentList : (studentList?.students ?? [])];
@@ -100,7 +107,7 @@ Below is the concrete breakdown of how each functional paradigm is implemented:
   };
   ```
 
-- **Semantic HTML Table Rows ([`renderHonorRoll`](app.js))**:
+- **Semantic HTML Table Rows ([`renderHonorRoll` in js/app.js](js/app.js))**:
   Transforms the list of honor students into accessible `<tr>` elements:
   ```javascript
   const [rowsHtml] = [
@@ -110,7 +117,7 @@ Below is the concrete breakdown of how each functional paradigm is implemented:
   ];
   ```
 
-- **Subject Badge Generation ([`renderSubjectBadges`](app.js))**:
+- **Subject Badge Generation ([`renderSubjectBadges` in js/app.js](js/app.js))**:
   Transforms an array of subject strings into badge elements:
   ```javascript
   export const renderSubjectBadges = ({ subjects = [] }) =>
@@ -136,7 +143,7 @@ Below is the concrete breakdown of how each functional paradigm is implemented:
 
 `.filter()` evaluates boolean predicates without mutating source arrays:
 
-- **Honor Roll Qualification ([`getHonorRoll`](dataProcessor.js))**:
+- **Honor Roll Qualification ([`getHonorRoll` in js/dataProcessor.js](js/dataProcessor.js))**:
   Extracts scholars whose overall average score across math, science, and history strictly exceeds `85`:
   ```javascript
   export const getHonorRoll = (studentList = []) => {
@@ -155,13 +162,16 @@ Below is the concrete breakdown of how each functional paradigm is implemented:
   };
   ```
 
+- **Interactive Directory Filter ([`setupFilters` in js/app.js](js/app.js))**:
+  Filters the directory cards dynamically to show either all 10 students or only the 7 honor scholars.
+
 ---
 
 ### 3. `.reduce()` — Accumulation & Aggregations
 
 `.reduce()` is used for multi-variable reduction and cumulative score computations:
 
-- **Class-Wide Subject Averages ([`getClassSubjectAverages`](dataProcessor.js))**:
+- **Class-Wide Subject Averages ([`getClassSubjectAverages` in js/dataProcessor.js](js/dataProcessor.js))**:
   Executes a single-pass traversal over all students, simultaneously accumulating `math`, `science`, and `history` score totals in an accumulator object:
   ```javascript
   export const getClassSubjectAverages = (studentList = []) => {
@@ -195,7 +205,7 @@ Below is the concrete breakdown of how each functional paradigm is implemented:
   };
   ```
 
-- **Student Score Summation ([`calculateAverageScore`](app.js))**:
+- **Student Score Summation ([`calculateAverageScore` in js/app.js](js/app.js))**:
   Calculates a student's score sum across subjects:
   ```javascript
   const total = scoreList.reduce((acc, curr) => acc + curr, 0);
@@ -225,9 +235,10 @@ Destructuring is implemented consistently across assignments and function parame
 | Check Category | Status | Details |
 | :--- | :---: | :--- |
 | **Dependency Vulnerabilities** | 🟢 PASSED | **Zero external dependencies**. Built purely on native web APIs. |
-| **XSS Prevention** | 🟢 PASSED | All dynamic string properties are sanitized through [`escapeHtml`](app.js#L95) before DOM insertion. |
+| **XSS Prevention** | 🟢 PASSED | All dynamic string properties are sanitized through [`escapeHtml`](js/app.js#L95) before DOM insertion. |
 | **Hardcoded Secrets** | 🟢 PASSED | No API keys, credentials, or sensitive tokens present. |
 | **Data Integrity** | 🟢 PASSED | Source arrays remain immutable; all processing functions are pure. |
+| **Local Config Exclusion** | 🟢 PASSED | The `.agents/` folder is explicitly excluded in `.gitignore` to prevent leaking local configuration. |
 | **Semantic Accessibility** | 🟢 PASSED | Explicit `scope="col"`, ARIA labels, and valid heading hierarchy (`h1` → `h2` → `h3`). |
 
 ---
@@ -236,19 +247,19 @@ Destructuring is implemented consistently across assignments and function parame
 
 ```text
 Student-Record-Manager/
-├── .agents/
-│   └── rules/
-│       └── functional-js-standards.md  # Core functional code conventions
+├── .agents/                           # (Git-ignored) Local AI configuration rules
 ├── assets/
 │   └── desktop-preview.png            # Visual dashboard screenshot
-├── .gitignore                         # Standard git ignore definitions
-├── app.js                             # Mock dataset & DOM rendering controller
-├── dataProcessor.js                   # Pure functional processing module
+├── css/
+│   └── style.css                      # Modern glassmorphism & responsive styles
+├── js/
+│   ├── app.js                         # Mock dataset & DOM rendering controller
+│   └── dataProcessor.js               # Pure functional processing module
+├── .gitignore                         # Standard git ignore definitions (includes .agents/)
 ├── index.html                         # Semantic dashboard markup
 ├── LICENSE                            # MIT License
 ├── package.json                       # ES Module configuration & npm scripts
-├── README.md                          # Project documentation & architecture
-└── style.css                          # Modern glassmorphism & responsive styles
+└── README.md                          # Project documentation & architecture
 ```
 
 ---
