@@ -109,7 +109,7 @@ export const renderSubjectBadges = ({ subjects = [] }) =>
     .join('');
 
 /**
- * Generates card markup for a single student.
+ * Generates card markup for a single student card.
  */
 export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) => {
   const { math, science, history } = scores;
@@ -165,7 +165,84 @@ export const renderStudentCard = ({ id, name, gradeLevel, subjects, scores }) =>
 };
 
 /**
- * Renders the list of student cards to the container.
+ * Generates an HTML table row representing an Honor Roll student.
+ */
+export const renderHonorRollRow = ({ student, rank }) => {
+  const { id, name, gradeLevel, scores } = student;
+  const { math, science, history } = scores;
+  const [average] = [calculateAverageScore({ math, science, history })];
+  const [initials] = [
+    name
+      .split(' ')
+      .map(([char]) => char)
+      .join('')
+  ];
+
+  return `
+    <tr id="honor-row-${id}">
+      <td class="cell-rank">#${rank}</td>
+      <td>
+        <div class="table-student-name">
+          <span class="avatar table-avatar">${initials}</span>
+          <span class="student-name-text">${name}</span>
+        </div>
+      </td>
+      <td><span class="badge badge-grade">Grade ${gradeLevel}</span></td>
+      <td class="cell-score">${math}</td>
+      <td class="cell-score">${science}</td>
+      <td class="cell-score">${history}</td>
+      <td>
+        <span class="avg-value ${average >= 90 ? 'score-high' : 'score-mid'}">${average}</span>
+      </td>
+      <td><span class="badge badge-honor">★ Honor Roll</span></td>
+    </tr>
+  `;
+};
+
+/**
+ * Renders the results of getHonorRoll into the semantic HTML table.
+ */
+export const renderHonorRoll = ({ studentList = students, containerId = 'honorRollTableBody' } = {}) => {
+  const [tableBody] = [document.getElementById(containerId)];
+  if (!tableBody) return;
+
+  const [honorRollStudents] = [getHonorRoll(studentList)];
+  const [rowsHtml] = [
+    honorRollStudents
+      .map((student, index) => renderHonorRollRow({ student, rank: index + 1 }))
+      .join('')
+  ];
+
+  tableBody.innerHTML = rowsHtml;
+
+  const [counterElem] = [document.getElementById('honorBadgeCounter')];
+  if (counterElem) {
+    counterElem.textContent = `${honorRollStudents.length} Scholars`;
+  }
+};
+
+/**
+ * Renders the results of getClassSubjectAverages into the dashboard metric cards.
+ */
+export const renderClassSubjectAverages = ({ studentList = students } = {}) => {
+  const { math, science, history } = getClassSubjectAverages(studentList);
+  const [mathElem] = [document.getElementById('mathAvgValue')];
+  const [sciElem] = [document.getElementById('scienceAvgValue')];
+  const [histElem] = [document.getElementById('historyAvgValue')];
+  const [overallElem] = [document.getElementById('overallAvgValue')];
+
+  const [overallAverage] = [
+    Math.round(((math + science + history) / 3) * 10) / 10
+  ];
+
+  if (mathElem) mathElem.textContent = `${math}%`;
+  if (sciElem) sciElem.textContent = `${science}%`;
+  if (histElem) histElem.textContent = `${history}%`;
+  if (overallElem) overallElem.textContent = `${overallAverage}%`;
+};
+
+/**
+ * Renders the full directory of student cards to the container.
  */
 export const mountStudents = ({ studentList = students, containerId = 'studentGrid' } = {}) => {
   const [container] = [document.getElementById(containerId)];
@@ -186,25 +263,7 @@ export const mountStudents = ({ studentList = students, containerId = 'studentGr
 };
 
 /**
- * Populates class metrics from dataProcessor output.
- */
-export const mountMetrics = ({ studentList = students } = {}) => {
-  const { math, science, history } = getClassSubjectAverages(studentList);
-  const [honorRollList] = [getHonorRoll(studentList)];
-
-  const [mathElem] = [document.getElementById('mathAvgValue')];
-  const [sciElem] = [document.getElementById('scienceAvgValue')];
-  const [histElem] = [document.getElementById('historyAvgValue')];
-  const [honorElem] = [document.getElementById('honorCountValue')];
-
-  if (mathElem) mathElem.textContent = `${math}%`;
-  if (sciElem) sciElem.textContent = `${science}%`;
-  if (histElem) histElem.textContent = `${history}%`;
-  if (honorElem) honorElem.textContent = `${honorRollList.length} / ${studentList.length}`;
-};
-
-/**
- * Sets up filter interaction using functional mappings.
+ * Sets up filter tabs interaction using functional mappings.
  */
 export const setupFilters = ({ studentList = students } = {}) => {
   const [filterAllBtn] = [document.getElementById('filterAllBtn')];
@@ -234,12 +293,24 @@ export const setupFilters = ({ studentList = students } = {}) => {
   }
 };
 
-// Initialize render if running in browser DOM context
+/**
+ * Master rendering function connecting dataProcessor functional logic to the UI.
+ * Coordinates rendering of:
+ * - getClassSubjectAverages results in dashboard metric cards
+ * - getHonorRoll results in the semantic HTML table
+ * - Enrolled student cards directory with filtering
+ */
+export const renderDashboard = ({ studentList = students } = {}) => {
+  renderClassSubjectAverages({ studentList });
+  renderHonorRoll({ studentList });
+  mountStudents({ studentList, containerId: 'studentGrid' });
+  setupFilters({ studentList });
+};
+
+// Initialize complete dashboard render when DOM is ready
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
-    mountStudents({ studentList: students, containerId: 'studentGrid' });
-    mountMetrics({ studentList: students });
-    setupFilters({ studentList: students });
+    renderDashboard({ studentList: students });
   });
 }
 
