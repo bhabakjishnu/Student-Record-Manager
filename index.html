@@ -34,27 +34,72 @@
 
     <!-- Main Content -->
     <main id="mainContent">
-      <!-- Subject Averages & Metrics -->
+      <!-- Subject Averages & Metrics Cards -->
       <section class="metrics-grid" id="metricsGrid" aria-label="Class performance overview">
         <div class="metric-card" id="mathMetric">
-          <span class="metric-label">Math Class Average</span>
+          <div class="metric-header">
+            <span class="metric-label">Math Class Average</span>
+            <span class="metric-tag tag-math">Math</span>
+          </div>
           <span class="metric-value" id="mathAvgValue">--</span>
           <span class="metric-subtext">Across all enrolled students</span>
         </div>
         <div class="metric-card" id="scienceMetric">
-          <span class="metric-label">Science Class Average</span>
+          <div class="metric-header">
+            <span class="metric-label">Science Class Average</span>
+            <span class="metric-tag tag-science">Science</span>
+          </div>
           <span class="metric-value" id="scienceAvgValue">--</span>
           <span class="metric-subtext">Across all enrolled students</span>
         </div>
         <div class="metric-card" id="historyMetric">
-          <span class="metric-label">History Class Average</span>
+          <div class="metric-header">
+            <span class="metric-label">History Class Average</span>
+            <span class="metric-tag tag-history">History</span>
+          </div>
           <span class="metric-value" id="historyAvgValue">--</span>
           <span class="metric-subtext">Across all enrolled students</span>
         </div>
-        <div class="metric-card" id="honorMetric">
-          <span class="metric-label">Honor Roll Qualifiers</span>
-          <span class="metric-value" id="honorCountValue">--</span>
-          <span class="metric-subtext">Students with average &gt; 85</span>
+        <div class="metric-card" id="overallMetric">
+          <div class="metric-header">
+            <span class="metric-label">Overall Class Average</span>
+            <span class="metric-tag tag-overall">Combined</span>
+          </div>
+          <span class="metric-value" id="overallAvgValue">--</span>
+          <span class="metric-subtext">Mean of all subject averages</span>
+        </div>
+      </section>
+
+      <!-- Honor Roll Semantic Table Section -->
+      <section class="dashboard-section" id="honorRollSection" aria-labelledby="honorRollHeading">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="honorRollHeading">Honor Roll Scholars</h2>
+            <p class="section-subtitle">Students achieving an overall academic average &gt; 85 across all subjects</p>
+          </div>
+          <div class="section-badge-wrap">
+            <span class="badge badge-honor" id="honorBadgeCounter">Loading...</span>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="honorRollTable">
+            <thead>
+              <tr>
+                <th scope="col" class="th-rank">Rank</th>
+                <th scope="col" class="th-student">Student Name</th>
+                <th scope="col" class="th-grade">Grade</th>
+                <th scope="col" class="th-score">Math</th>
+                <th scope="col" class="th-score">Science</th>
+                <th scope="col" class="th-score">History</th>
+                <th scope="col" class="th-avg">Average</th>
+                <th scope="col" class="th-status">Distinction</th>
+              </tr>
+            </thead>
+            <tbody id="honorRollTableBody">
+              <!-- Rendered dynamically by app.js -->
+            </tbody>
+          </table>
         </div>
       </section>
 

@@ -7,3 +7,5 @@ Always use array and object destructuring for variable assignments and function 
 Never use for, for...of, or forEach loops. Rely exclusively on .map(), .filter(), and .reduce().
 
 Write pure, modular functions using ES6 arrow syntax.
+
+Understand → Inspect → Plan → Design → Implement → Test → Review → Secure → Document → Release
